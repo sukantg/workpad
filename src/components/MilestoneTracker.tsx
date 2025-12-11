@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Clock, Upload, Loader2, DollarSign } from 'lucide-react';
+import { CheckCircle, Clock, Upload, Loader2, DollarSign, X } from 'lucide-react';
 import { supabase, Milestone } from '../lib/supabase';
 import Toast from './Toast';
 
@@ -15,6 +15,9 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
+  const [submissionNotes, setSubmissionNotes] = useState('');
 
   useEffect(() => {
     loadMilestones();
@@ -53,7 +56,24 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
     }
   };
 
-  const handleSubmitMilestone = async (milestoneId: string) => {
+  const openSubmitModal = (milestone: Milestone) => {
+    setSelectedMilestone(milestone);
+    setSubmissionNotes('');
+    setShowSubmitModal(true);
+  };
+
+  const closeSubmitModal = () => {
+    setShowSubmitModal(false);
+    setSelectedMilestone(null);
+    setSubmissionNotes('');
+  };
+
+  const handleSubmitMilestone = async () => {
+    if (!selectedMilestone || !submissionNotes.trim()) {
+      setToast({ message: 'Please provide submission notes', type: 'error' });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const { error } = await supabase
@@ -61,12 +81,14 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
         .update({
           status: 'submitted',
           submitted_at: new Date().toISOString(),
+          submission_notes: submissionNotes.trim(),
         })
-        .eq('id', milestoneId);
+        .eq('id', selectedMilestone.id);
 
       if (error) throw error;
 
       setToast({ message: 'Milestone submitted for review', type: 'success' });
+      closeSubmitModal();
       loadMilestones();
     } catch (err) {
       console.error('Error submitting milestone:', err);
@@ -209,21 +231,12 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
               {userType === 'freelancer' && milestone.status === 'pending' && (
                 <>
                   <button
-                    onClick={() => handleSubmitMilestone(milestone.id)}
+                    onClick={() => openSubmitModal(milestone)}
                     disabled={submitting || (index > 0 && milestones[index - 1].status !== 'paid')}
                     className="w-full mt-4 py-2 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Submitting...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4" />
-                        <span>Submit Milestone</span>
-                      </>
-                    )}
+                    <Upload className="w-4 h-4" />
+                    <span>Submit Milestone</span>
                   </button>
                   {index > 0 && milestones[index - 1].status !== 'paid' && (
                     <p className="text-xs text-zinc-500 mt-2 text-center">
@@ -231,6 +244,13 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
                     </p>
                   )}
                 </>
+              )}
+
+              {milestone.submission_notes && (
+                <div className="mt-4 p-4 bg-zinc-700/50 rounded-lg">
+                  <h4 className="text-sm font-semibold text-yellow-400 mb-2">Submission Notes</h4>
+                  <p className="text-zinc-300 text-sm whitespace-pre-wrap">{milestone.submission_notes}</p>
+                </div>
               )}
 
               {userType === 'client' && milestone.status === 'submitted' && (
@@ -271,6 +291,76 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
           </div>
         </div>
       </div>
+
+      {showSubmitModal && selectedMilestone && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white">Submit Milestone</h3>
+              <button
+                onClick={closeSubmitModal}
+                className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+                disabled={submitting}
+              >
+                <X className="w-5 h-5 text-zinc-400" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-4 mb-4">
+                <h4 className="text-lg font-semibold text-white mb-1">{selectedMilestone.title}</h4>
+                <p className="text-zinc-400 text-sm mb-3">{selectedMilestone.description}</p>
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="w-4 h-4 text-yellow-400" />
+                  <span className="text-white font-semibold">{selectedMilestone.amount} USDC</span>
+                </div>
+              </div>
+
+              <label className="block text-sm font-semibold text-zinc-300 mb-2">
+                Submission Notes <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                value={submissionNotes}
+                onChange={(e) => setSubmissionNotes(e.target.value)}
+                placeholder="Describe what you've completed for this milestone. Include any relevant details, links to deliverables, or notes for the client..."
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-white placeholder-zinc-500 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all resize-none"
+                rows={6}
+                disabled={submitting}
+              />
+              <p className="text-xs text-zinc-500 mt-2">
+                This information will be sent to the client for review
+              </p>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={closeSubmitModal}
+                disabled={submitting}
+                className="flex-1 py-3 bg-zinc-800 text-white rounded-lg font-semibold hover:bg-zinc-700 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitMilestone}
+                disabled={submitting || !submissionNotes.trim()}
+                className="flex-1 py-3 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5" />
+                    <span>Submit for Review</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -53,6 +53,18 @@ Deno.serve(async (req: Request) => {
       throw new Error("Milestone must be in submitted status");
     }
 
+    const { data: freelancerProfile, error: profileError } = await supabase
+      .from("profiles")
+      .select("wallet_address")
+      .eq("id", milestone.gig.freelancer_id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    if (!freelancerProfile?.wallet_address) {
+      throw new Error("Freelancer must connect wallet before payment can be released");
+    }
+
     const amountToRelease = milestone.amount;
 
     let escrowPda = null;
@@ -90,7 +102,8 @@ Deno.serve(async (req: Request) => {
         transaction_info: {
           escrow_pda: escrowPda ? escrowPda.toString() : null,
           amount_released: amountToRelease,
-          note: "Payment tracking updated in database",
+          freelancer_wallet: freelancerProfile.wallet_address,
+          note: "Payment tracking updated in database. Funds to be sent to freelancer wallet.",
         },
       }),
       {

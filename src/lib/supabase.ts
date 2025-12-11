@@ -47,6 +47,7 @@ export interface Milestone {
   amount: number;
   sequence_order: number;
   status: 'pending' | 'submitted' | 'approved' | 'paid';
+  submission_notes: string | null;
   submitted_at: string | null;
   approved_at: string | null;
   paid_at: string | null;
