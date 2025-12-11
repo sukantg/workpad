@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Briefcase, LogOut, User, Wallet } from 'lucide-react';
+import { Briefcase, LogOut, User, Wallet, X } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { supabase } from '../lib/supabase';
@@ -12,7 +12,7 @@ interface NavigationProps {
 }
 
 export default function Navigation({ user, profile, onNavigate, currentPage }: NavigationProps) {
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, disconnect } = useWallet();
 
   useEffect(() => {
     const linkWallet = async () => {
@@ -37,6 +37,17 @@ export default function Navigation({ user, profile, onNavigate, currentPage }: N
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    window.location.reload();
+  };
+
+  const handleDisconnectWallet = async () => {
+    if (user && profile) {
+      await supabase
+        .from('profiles')
+        .update({ wallet_address: null })
+        .eq('id', user.id);
+    }
+    await disconnect();
     window.location.reload();
   };
 
@@ -78,11 +89,18 @@ export default function Navigation({ user, profile, onNavigate, currentPage }: N
                 )}
 
                 {(profile.wallet_address || connected) && publicKey && (
-                  <div className="flex items-center space-x-2 px-3 py-1.5 bg-zinc-900 rounded-lg border border-zinc-800">
+                  <div className="flex items-center space-x-2 px-3 py-1.5 bg-zinc-900 rounded-lg border border-zinc-800 group">
                     <Wallet className="w-4 h-4 text-yellow-400" />
                     <span className="text-zinc-400 font-mono text-xs">
                       {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}
                     </span>
+                    <button
+                      onClick={handleDisconnectWallet}
+                      className="ml-1 p-0.5 hover:bg-zinc-800 rounded transition-colors"
+                      title="Disconnect wallet"
+                    >
+                      <X className="w-3 h-3 text-zinc-500 hover:text-red-400" />
+                    </button>
                   </div>
                 )}
 
