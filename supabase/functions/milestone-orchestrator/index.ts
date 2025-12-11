@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 const FACILITATOR_URL = "https://facilitator.payai.network";
-const ESCROW_WALLET = Deno.env.get("ESCROW_WALLET_ADDRESS") || "YOUR_SOLANA_WALLET_ADDRESS_HERE";
+const ESCROW_WALLET = Deno.env.get("ESCROW_WALLET_ADDRESS") || "A1v5NVhFkMZtzHFAKeVUovRfh4a8JxSSB5MJu21Qfi6v";
 
 interface ApproveMilestoneRequest {
   milestone_id?: string;
