@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, Clock, Upload, Loader2, DollarSign, X } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { supabase, Milestone } from '../lib/supabase';
 import Toast from './Toast';
 
@@ -11,6 +12,7 @@ interface MilestoneTrackerProps {
 }
 
 export default function MilestoneTracker({ gigId, userId, userType, totalBudget }: MilestoneTrackerProps) {
+  const { connected, publicKey } = useWallet();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -126,6 +128,11 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
   };
 
   const handleApproveMilestone = async (milestoneId: string) => {
+    if (!connected || !publicKey) {
+      setToast({ message: 'Please connect your wallet before approving milestones', type: 'error' });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/milestone-orchestrator`;

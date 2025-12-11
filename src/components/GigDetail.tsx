@@ -64,6 +64,12 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
 
   const handleSubmitWork = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!connected || !publicKey) {
+      setToast({ message: 'Please connect your wallet before submitting work', type: 'error' });
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -98,6 +104,11 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
   };
 
   const handleApprove = async () => {
+    if (!connected || !publicKey) {
+      setToast({ message: 'Please connect your wallet before approving work', type: 'error' });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const releaseMessage = connected && publicKey
@@ -147,6 +158,11 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
   };
 
   const handleReject = async () => {
+    if (!connected || !publicKey) {
+      setToast({ message: 'Please connect your wallet before requesting revisions', type: 'error' });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const { error: submissionError } = await supabase
