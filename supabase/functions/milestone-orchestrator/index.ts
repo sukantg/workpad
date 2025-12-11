@@ -63,8 +63,9 @@ Deno.serve(async (req: Request) => {
     const { data: updatedMilestone, error: updateError } = await supabase
       .from("milestones")
       .update({
-        status: "approved",
+        status: "paid",
         approved_at: new Date().toISOString(),
+        paid_at: new Date().toISOString(),
       })
       .eq("id", milestone_id)
       .select()
