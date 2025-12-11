@@ -18,6 +18,22 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
 
   useEffect(() => {
     loadMilestones();
+
+    const subscription = supabase
+      .channel('milestones-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'milestones',
+        filter: `gig_id=eq.${gigId}`
+      }, () => {
+        loadMilestones();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [gigId]);
 
   const loadMilestones = async () => {
@@ -191,23 +207,30 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
               </div>
 
               {userType === 'freelancer' && milestone.status === 'pending' && (
-                <button
-                  onClick={() => handleSubmitMilestone(milestone.id)}
-                  disabled={submitting || (index > 0 && milestones[index - 1].status !== 'paid')}
-                  className="w-full mt-4 py-2 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Submitting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4" />
-                      <span>Submit Milestone</span>
-                    </>
+                <>
+                  <button
+                    onClick={() => handleSubmitMilestone(milestone.id)}
+                    disabled={submitting || (index > 0 && milestones[index - 1].status !== 'paid')}
+                    className="w-full mt-4 py-2 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        <span>Submit Milestone</span>
+                      </>
+                    )}
+                  </button>
+                  {index > 0 && milestones[index - 1].status !== 'paid' && (
+                    <p className="text-xs text-zinc-500 mt-2 text-center">
+                      Complete previous milestone first
+                    </p>
                   )}
-                </button>
+                </>
               )}
 
               {userType === 'client' && milestone.status === 'submitted' && (
