@@ -399,16 +399,16 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
                 <button
                   onClick={handleApprove}
                   disabled={submitting}
-                  className="flex-1 flex items-center justify-center space-x-2 bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center space-x-2 bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Processing...</span>
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="w-5 h-5" />
+                      <CheckCircle className="w-4 h-4" />
                       <span>Approve & Release Payment</span>
                     </>
                   )}
@@ -416,9 +416,9 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
                 <button
                   onClick={handleReject}
                   disabled={submitting}
-                  className="flex-1 flex items-center justify-center space-x-2 bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center space-x-2 bg-red-500 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <XCircle className="w-5 h-5" />
+                  <XCircle className="w-4 h-4" />
                   <span>Request Revision</span>
                 </button>
               </div>
