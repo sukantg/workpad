@@ -17,7 +17,16 @@ function App() {
   const [selectedGigId, setSelectedGigId] = useState<string | null>(null);
 
   useEffect(() => {
-    checkUser();
+    const initializeApp = async () => {
+      try {
+        await checkUser();
+      } catch (error) {
+        console.error('Failed to initialize app:', error);
+        setLoading(false);
+      }
+    };
+
+    initializeApp();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       (async () => {
@@ -85,6 +94,8 @@ function App() {
     }
   };
 
+  console.log('App render:', { loading, user, profile, currentPage });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -94,7 +105,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black" style={{ minHeight: '100vh', backgroundColor: 'black' }}>
       {user && profile && (
         <Navigation
           user={user}
@@ -104,7 +115,7 @@ function App() {
         />
       )}
 
-      {currentPage === 'landing' && (
+      {currentPage === 'landing' && !user && (
         <Landing onGetStarted={() => setCurrentPage('auth')} />
       )}
 
