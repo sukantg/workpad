@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Clock, Briefcase, CheckCircle } from 'lucide-react';
+import { DollarSign, Clock, Briefcase, CheckCircle, Wallet } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { supabase, Gig } from '../lib/supabase';
 import Toast from './Toast';
 
@@ -9,6 +10,7 @@ interface FreelancerDashboardProps {
 }
 
 export default function FreelancerDashboard({ userId, onViewGig }: FreelancerDashboardProps) {
+  const wallet = useWallet();
   const [openGigs, setOpenGigs] = useState<Gig[]>([]);
   const [myGigs, setMyGigs] = useState<Gig[]>([]);
   const [activeTab, setActiveTab] = useState<'available' | 'my-gigs'>('available');
@@ -47,7 +49,20 @@ export default function FreelancerDashboard({ userId, onViewGig }: FreelancerDas
   };
 
   const handleAcceptGig = async (gigId: string) => {
+    if (!wallet.connected || !wallet.publicKey) {
+      setToast({
+        message: 'Please connect your Solana wallet before accepting gigs',
+        type: 'error'
+      });
+      return;
+    }
+
     try {
+      await supabase
+        .from('profiles')
+        .update({ wallet_address: wallet.publicKey.toString() })
+        .eq('id', userId);
+
       const { error } = await supabase
         .from('gigs')
         .update({
@@ -183,19 +198,28 @@ export default function FreelancerDashboard({ userId, onViewGig }: FreelancerDas
                     </div>
                   </div>
 
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleAcceptGig(gig.id)}
-                      className="px-6 py-2 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
-                    >
-                      Accept Gig
-                    </button>
-                    <button
-                      onClick={() => onViewGig(gig.id)}
-                      className="px-6 py-3 bg-zinc-800 text-white rounded-lg font-semibold hover:bg-zinc-700 transition-colors"
-                    >
-                      View Details
-                    </button>
+                  <div className="space-y-2">
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => handleAcceptGig(gig.id)}
+                        disabled={!wallet.connected}
+                        className="px-6 py-2 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Accept Gig
+                      </button>
+                      <button
+                        onClick={() => onViewGig(gig.id)}
+                        className="px-6 py-3 bg-zinc-800 text-white rounded-lg font-semibold hover:bg-zinc-700 transition-colors"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                    {!wallet.connected && (
+                      <div className="flex items-center space-x-2 text-sm text-yellow-400">
+                        <Wallet className="w-4 h-4" />
+                        <span>Connect your wallet to accept gigs</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
