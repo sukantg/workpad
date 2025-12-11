@@ -18,9 +18,13 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
   const [submissionNotes, setSubmissionNotes] = useState('');
+  const [hasWallet, setHasWallet] = useState(false);
 
   useEffect(() => {
     loadMilestones();
+    if (userType === 'freelancer') {
+      checkWalletConnection();
+    }
 
     const subscription = supabase
       .channel('milestones-changes')
@@ -37,7 +41,23 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
     return () => {
       subscription.unsubscribe();
     };
-  }, [gigId]);
+  }, [gigId, userType]);
+
+  const checkWalletConnection = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('wallet_address')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      setHasWallet(!!data?.wallet_address);
+    } catch (err) {
+      console.error('Error checking wallet:', err);
+      setHasWallet(false);
+    }
+  };
 
   const loadMilestones = async () => {
     try {
@@ -57,6 +77,13 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
   };
 
   const openSubmitModal = (milestone: Milestone) => {
+    if (!hasWallet) {
+      setToast({
+        message: 'Please connect your wallet before submitting milestones',
+        type: 'error'
+      });
+      return;
+    }
     setSelectedMilestone(milestone);
     setSubmissionNotes('');
     setShowSubmitModal(true);
@@ -232,13 +259,18 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
                 <>
                   <button
                     onClick={() => openSubmitModal(milestone)}
-                    disabled={submitting || (index > 0 && milestones[index - 1].status !== 'paid')}
+                    disabled={submitting || !hasWallet || (index > 0 && milestones[index - 1].status !== 'paid')}
                     className="w-full mt-4 py-2 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
                     <Upload className="w-4 h-4" />
                     <span>Submit Milestone</span>
                   </button>
-                  {index > 0 && milestones[index - 1].status !== 'paid' && (
+                  {!hasWallet && (
+                    <p className="text-xs text-red-400 mt-2 text-center">
+                      Connect your wallet to submit milestones
+                    </p>
+                  )}
+                  {hasWallet && index > 0 && milestones[index - 1].status !== 'paid' && (
                     <p className="text-xs text-zinc-500 mt-2 text-center">
                       Complete previous milestone first
                     </p>
