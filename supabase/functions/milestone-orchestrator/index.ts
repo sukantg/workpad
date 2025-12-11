@@ -53,14 +53,12 @@ Deno.serve(async (req: Request) => {
       throw new Error("Milestone must be in submitted status");
     }
 
-    const connection = new Connection(
-      Deno.env.get("SOLANA_RPC_URL") || "https://api.devnet.solana.com",
-      "confirmed"
-    );
-
-    const escrowPda = new PublicKey(milestone.gig.escrow_pda);
-
     const amountToRelease = milestone.amount;
+
+    let escrowPda = null;
+    if (milestone.gig.escrow_pda) {
+      escrowPda = new PublicKey(milestone.gig.escrow_pda);
+    }
 
     const { data: updatedMilestone, error: updateError } = await supabase
       .from("milestones")
@@ -89,9 +87,9 @@ Deno.serve(async (req: Request) => {
         message: "Milestone approved successfully",
         milestone: updatedMilestone,
         transaction_info: {
-          escrow_pda: escrowPda.toString(),
+          escrow_pda: escrowPda ? escrowPda.toString() : null,
           amount_released: amountToRelease,
-          note: "x402 will process the Solana transaction in the background",
+          note: "Payment tracking updated in database",
         },
       }),
       {
