@@ -399,16 +399,16 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
                 <button
                   onClick={handleApprove}
                   disabled={submitting}
-                  className="flex-1 flex items-center justify-center space-x-2 bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center space-x-1.5 bg-green-500 text-white py-1.5 px-3 rounded-lg text-xs font-semibold hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3 h-3 animate-spin" />
                       <span>Processing...</span>
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="w-4 h-4" />
+                      <CheckCircle className="w-3 h-3" />
                       <span>Approve & Release Payment</span>
                     </>
                   )}
@@ -416,9 +416,9 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
                 <button
                   onClick={handleReject}
                   disabled={submitting}
-                  className="flex-1 flex items-center justify-center space-x-2 bg-red-500 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center space-x-1.5 bg-red-500 text-white py-1.5 px-3 rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <XCircle className="w-4 h-4" />
+                  <XCircle className="w-3 h-3" />
                   <span>Request Revision</span>
                 </button>
               </div>
