@@ -84,11 +84,9 @@ export default function Navigation({ user, profile, onNavigate, currentPage }: N
                   <span className="text-yellow-400 capitalize">{profile.user_type}</span>
                 </div>
 
-                {!profile.wallet_address && !connected && (
+                {!connected ? (
                   <WalletMultiButton className="!bg-yellow-400 hover:!bg-yellow-300 !text-black !font-semibold !rounded-lg !px-4 !py-2 !h-auto !transition-all" />
-                )}
-
-                {(profile.wallet_address || connected) && publicKey && (
+                ) : publicKey && (
                   <div className="flex items-center space-x-2 px-3 py-1.5 bg-zinc-900 rounded-lg border border-zinc-800 group">
                     <Wallet className="w-4 h-4 text-yellow-400" />
                     <span className="text-zinc-400 font-mono text-xs">
