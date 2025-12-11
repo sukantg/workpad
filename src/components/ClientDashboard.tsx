@@ -41,6 +41,14 @@ export default function ClientDashboard({ userId, onViewGig }: ClientDashboardPr
     }
   };
 
+  const handleOpenCreateForm = () => {
+    if (!connected || !publicKey) {
+      setToast({ message: 'Please connect your wallet before posting a gig', type: 'error' });
+      return;
+    }
+    setShowCreateForm(true);
+  };
+
   const handleCreateGig = async (gigData: {
     title: string;
     description: string;
@@ -192,7 +200,7 @@ export default function ClientDashboard({ userId, onViewGig }: ClientDashboardPr
             <p className="text-zinc-400">Manage your gigs and track progress</p>
           </div>
           <button
-            onClick={() => setShowCreateForm(true)}
+            onClick={handleOpenCreateForm}
             className="flex items-center space-x-2 bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-all"
           >
             <Plus className="w-5 h-5" />
@@ -252,7 +260,7 @@ export default function ClientDashboard({ userId, onViewGig }: ClientDashboardPr
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-12 text-center">
             <p className="text-zinc-400 text-lg mb-4">No gigs posted yet</p>
             <button
-              onClick={() => setShowCreateForm(true)}
+              onClick={handleOpenCreateForm}
               className="text-yellow-400 hover:text-yellow-300 transition-colors"
             >
               Post your first gig
