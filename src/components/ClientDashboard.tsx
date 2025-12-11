@@ -15,7 +15,6 @@ export default function ClientDashboard({ userId, onViewGig }: ClientDashboardPr
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [gigToDelete, setGigToDelete] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -60,8 +59,6 @@ export default function ClientDashboard({ userId, onViewGig }: ClientDashboardPr
       setToast({ message: 'Please connect your wallet to create a gig', type: 'error' });
       return;
     }
-
-    setSubmitting(true);
 
     try {
       const walletMessage = `Creating escrow from wallet ${publicKey.toBase58().substring(0, 4)}...${publicKey.toBase58().slice(-4)}`;
@@ -130,8 +127,6 @@ export default function ClientDashboard({ userId, onViewGig }: ClientDashboardPr
     } catch (err) {
       console.error('Error creating gig:', err);
       setToast({ message: 'Failed to create gig. Please try again.', type: 'error' });
-    } finally {
-      setSubmitting(false);
     }
   };
 

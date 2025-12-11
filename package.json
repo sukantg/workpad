@@ -11,6 +11,10 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
+    "@faremeter/fetch": "^0.14.0",
+    "@faremeter/info": "^0.14.0",
+    "@faremeter/payment-solana": "^0.14.0",
+    "@faremeter/wallet-solana": "^0.14.0",
     "@solana/wallet-adapter-base": "^0.9.27",
     "@solana/wallet-adapter-react": "^0.15.39",
     "@solana/wallet-adapter-react-ui": "^0.9.39",

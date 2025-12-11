@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CheckCircle, Clock, Upload, Loader2, DollarSign, X } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { supabase, Milestone } from '../lib/supabase';
+import { initializeX402Fetch, getX402Fetch } from '../lib/x402-fetch';
 import Toast from './Toast';
 
 interface MilestoneTrackerProps {
@@ -12,7 +13,8 @@ interface MilestoneTrackerProps {
 }
 
 export default function MilestoneTracker({ gigId, userId, userType, totalBudget }: MilestoneTrackerProps) {
-  const { connected, publicKey } = useWallet();
+  const wallet = useWallet();
+  const { connected, publicKey } = wallet;
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -21,11 +23,21 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
   const [submissionNotes, setSubmissionNotes] = useState('');
   const [hasWallet, setHasWallet] = useState(false);
+  const [x402Ready, setX402Ready] = useState(false);
 
   useEffect(() => {
     loadMilestones();
     if (userType === 'freelancer') {
       checkWalletConnection();
+    }
+
+    if (userType === 'client' && connected && wallet.signTransaction) {
+      initializeX402Fetch(wallet)
+        .then(() => setX402Ready(true))
+        .catch((err) => {
+          console.error('Failed to initialize x402:', err);
+          setX402Ready(false);
+        });
     }
 
     const subscription = supabase
@@ -43,7 +55,7 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
     return () => {
       subscription.unsubscribe();
     };
-  }, [gigId, userType]);
+  }, [gigId, userType, connected, wallet]);
 
   const checkWalletConnection = async () => {
     try {
@@ -133,12 +145,19 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
       return;
     }
 
+    if (!x402Ready) {
+      setToast({ message: 'Initializing payment system, please try again', type: 'info' });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/milestone-orchestrator`;
       const { data: { session } } = await supabase.auth.getSession();
 
-      const response = await fetch(apiUrl, {
+      const x402EnabledFetch = getX402Fetch();
+
+      const response = await x402EnabledFetch(apiUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
@@ -146,7 +165,6 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
         },
         body: JSON.stringify({
           milestone_id: milestoneId,
-          client_signature: 'temp_signature',
           payment_type: 'milestone',
         }),
       });
@@ -156,7 +174,11 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
         throw new Error(error.error || 'Failed to approve milestone');
       }
 
-      setToast({ message: 'Milestone approved and payment released via x402', type: 'success' });
+      const result = await response.json();
+      setToast({
+        message: `Milestone approved! Payment of $${result.transaction_info.amount_released} released via x402`,
+        type: 'success'
+      });
       loadMilestones();
     } catch (err) {
       console.error('Error approving milestone:', err);
@@ -294,23 +316,30 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
               )}
 
               {userType === 'client' && milestone.status === 'submitted' && (
-                <button
-                  onClick={() => handleApproveMilestone(milestone.id)}
-                  disabled={submitting}
-                  className="w-full mt-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Approve & Release ${milestone.amount} USDC</span>
-                    </>
+                <>
+                  <button
+                    onClick={() => handleApproveMilestone(milestone.id)}
+                    disabled={submitting || !x402Ready}
+                    className="w-full mt-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Processing x402 Payment...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Approve & Release ${milestone.amount} USDC via x402</span>
+                      </>
+                    )}
+                  </button>
+                  {!x402Ready && connected && (
+                    <p className="text-xs text-yellow-400 mt-2 text-center">
+                      Initializing x402 payment protocol...
+                    </p>
                   )}
-                </button>
+                </>
               )}
             </div>
           ))}

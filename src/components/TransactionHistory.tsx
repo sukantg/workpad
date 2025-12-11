@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Lock, Unlock, Clock, CheckCircle, ExternalLink } from 'lucide-react';
+import { DollarSign, Lock, Unlock, Clock, ExternalLink } from 'lucide-react';
 import { supabase, Transaction } from '../lib/supabase';
 
 interface TransactionHistoryProps {

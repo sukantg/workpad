@@ -135,7 +135,7 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
         throw new Error(error.error || 'Failed to approve payment');
       }
 
-      const result = await response.json();
+      await response.json();
       setToast({ message: `${gig?.budget} USDC released via x402 successfully!`, type: 'success' });
       loadGigDetails();
     } catch (err) {
