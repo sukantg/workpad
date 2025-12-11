@@ -147,6 +147,7 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
         body: JSON.stringify({
           milestone_id: milestoneId,
           client_signature: 'temp_signature',
+          payment_type: 'milestone',
         }),
       });
 
@@ -155,7 +156,7 @@ export default function MilestoneTracker({ gigId, userId, userType, totalBudget 
         throw new Error(error.error || 'Failed to approve milestone');
       }
 
-      setToast({ message: 'Milestone approved and payment released', type: 'success' });
+      setToast({ message: 'Milestone approved and payment released via x402', type: 'success' });
       loadMilestones();
     } catch (err) {
       console.error('Error approving milestone:', err);

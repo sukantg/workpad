@@ -111,47 +111,36 @@ export default function GigDetail({ gigId, userId, userType, onBack }: GigDetail
 
     setSubmitting(true);
     try {
-      const releaseMessage = connected && publicKey
-        ? `Releasing ${gig?.budget} USDC from wallet ${publicKey.toBase58().substring(0, 4)}...${publicKey.toBase58().slice(-4)}`
-        : 'Processing payment release...';
-
+      const releaseMessage = `Processing payment via x402 from wallet ${publicKey.toBase58().substring(0, 4)}...${publicKey.toBase58().slice(-4)}`;
       setToast({ message: releaseMessage, type: 'info' });
 
-      const { error: submissionError } = await supabase
-        .from('submissions')
-        .update({
-          status: 'approved',
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq('gig_id', gigId);
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/milestone-orchestrator`;
+      const { data: { session } } = await supabase.auth.getSession();
 
-      if (submissionError) throw submissionError;
-
-      const { error: gigError } = await supabase
-        .from('gigs')
-        .update({ status: 'completed', updated_at: new Date().toISOString() })
-        .eq('id', gigId);
-
-      if (gigError) throw gigError;
-
-      const txSignature = `${Date.now()}_${Math.random().toString(36).substring(2, 20)}`;
-      const { error: transactionError } = await supabase
-        .from('transactions')
-        .insert({
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           gig_id: gigId,
-          transaction_type: 'release',
-          amount: gig?.budget,
-          tx_signature: txSignature,
-          status: 'confirmed',
-        });
+          client_signature: 'temp_signature',
+          payment_type: 'full',
+        }),
+      });
 
-      if (transactionError) throw transactionError;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to approve payment');
+      }
 
-      setToast({ message: `${gig?.budget} USDC released to freelancer successfully!`, type: 'success' });
+      const result = await response.json();
+      setToast({ message: `${gig?.budget} USDC released via x402 successfully!`, type: 'success' });
       loadGigDetails();
     } catch (err) {
       console.error('Error approving work:', err);
-      setToast({ message: 'Failed to approve work. Please try again.', type: 'error' });
+      setToast({ message: err instanceof Error ? err.message : 'Failed to approve work. Please try again.', type: 'error' });
     } finally {
       setSubmitting(false);
     }
