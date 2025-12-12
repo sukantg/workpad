@@ -35,12 +35,18 @@ npm install
 
 ### 2. Environment Variables
 
-The `.env` file is already configured with Supabase credentials:
-
-```env
-VITE_SUPABASE_URL=https://ivfijwyooasyiqhcvqaa.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Create a `.env` file in the project root:
+```bash
+cp .env.example .env
 ```
+
+Add your Supabase credentials to `.env`:
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+You can find these values in your Supabase project settings at https://app.supabase.com
 
 ### 3. Database Setup
 
@@ -152,6 +158,26 @@ npm run preview
 - Users can only access their own data and relevant gigs
 - Authentication handled securely via Supabase Auth
 - Private keys never leave the user's wallet
+
+## Troubleshooting
+
+### Missing Supabase Environment Variables
+
+If you see an error about missing Supabase environment variables:
+1. Ensure you have a `.env` file in the project root
+2. Make sure it contains `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+3. Restart your development server after creating/updating the `.env` file
+
+### Ethereum Provider Errors
+
+If you see errors about `window.ethereum` in the console, these are harmless conflicts between browser wallet extensions (MetaMask, Core wallet, etc.) and don't affect the application functionality. The app uses Solana wallets, not Ethereum.
+
+### Buffer is not defined
+
+If you see "Buffer is not defined" errors, ensure that:
+1. The `buffer` package is installed (`npm install buffer`)
+2. The polyfills are loaded correctly (check `src/polyfills.ts` and `src/main.tsx`)
+3. Restart your development server after making changes
 
 ## Support
 

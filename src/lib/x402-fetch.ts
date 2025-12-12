@@ -1,3 +1,6 @@
+// Ensure Buffer polyfill is loaded before faremeter packages
+import '../polyfills';
+
 import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
 import { createLocalWallet } from '@faremeter/wallet-solana';
 import { createPaymentHandler } from '@faremeter/payment-solana/exact';
