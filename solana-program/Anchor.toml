@@ -1,17 +1,18 @@
 [toolchain]
+anchor_version = "0.31.1"
 
 [features]
 resolution = true
 skip-lint = false
 
 [programs.devnet]
-milestone_escrow = "MiLe5TonE111111111111111111111111111111111"
+milestone_escrow = "JBRL2c7Bu9FdygTcVyadbWdyPubNSL1igRg32CuLaUZ4"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

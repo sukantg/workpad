@@ -1,0 +1,10 @@
+/Users/sukantghosh/Code/workpad/solana-program/target/debug/deps/anchor_spl-605ee3ee2e2b785e.d: /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/lib.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/associated_token.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/token.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/idl_build.rs
+
+/Users/sukantghosh/Code/workpad/solana-program/target/debug/deps/libanchor_spl-605ee3ee2e2b785e.rlib: /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/lib.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/associated_token.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/token.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/idl_build.rs
+
+/Users/sukantghosh/Code/workpad/solana-program/target/debug/deps/libanchor_spl-605ee3ee2e2b785e.rmeta: /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/lib.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/associated_token.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/token.rs /Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/idl_build.rs
+
+/Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/lib.rs:
+/Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/associated_token.rs:
+/Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/token.rs:
+/Users/sukantghosh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anchor-spl-0.31.1/src/idl_build.rs:
