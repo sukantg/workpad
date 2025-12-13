@@ -36,11 +36,13 @@ npm install
 ### 2. Environment Variables
 
 Create a `.env` file in the project root:
+
 ```bash
 cp .env.example .env
 ```
 
 Add your Supabase credentials to `.env`:
+
 ```env
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -103,27 +105,6 @@ Projects can be broken into milestones for incremental payment:
 3. Client reviews and approves each milestone
 4. Payment is released incrementally as milestones are approved
 
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── Auth.tsx              # Authentication UI
-│   ├── ClientDashboard.tsx   # Client's gig management
-│   ├── FreelancerDashboard.tsx # Freelancer's gig browser
-│   ├── GigDetail.tsx         # Individual gig view
-│   ├── CreateGigModal.tsx    # Gig creation form
-│   ├── MilestoneTracker.tsx  # Milestone progress tracking
-│   ├── Navigation.tsx        # Top navigation bar
-│   ├── Landing.tsx           # Landing page
-│   ├── WalletProvider.tsx    # Solana wallet configuration
-│   └── Toast.tsx             # Notification system
-├── lib/
-│   ├── supabase.ts           # Supabase client & types
-│   └── x402-fetch.ts         # x402 payment utilities
-└── App.tsx                   # Main app component
-```
-
 ## Solana Integration
 
 The app uses Solana Devnet for testing. To use the platform:
@@ -164,6 +145,7 @@ npm run preview
 ### Missing Supabase Environment Variables
 
 If you see an error about missing Supabase environment variables:
+
 1. Ensure you have a `.env` file in the project root
 2. Make sure it contains `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 3. Restart your development server after creating/updating the `.env` file
@@ -175,6 +157,7 @@ If you see errors about `window.ethereum` in the console, these are harmless con
 ### Buffer is not defined
 
 If you see "Buffer is not defined" errors, ensure that:
+
 1. The `buffer` package is installed (`npm install buffer`)
 2. The polyfills are loaded correctly (check `src/polyfills.ts` and `src/main.tsx`)
 3. Restart your development server after making changes
@@ -182,6 +165,7 @@ If you see "Buffer is not defined" errors, ensure that:
 ## Support
 
 For issues or questions:
+
 - Check the browser console for error messages
 - Ensure your wallet is connected and on Devnet
 - Verify you have Devnet SOL for transaction fees
