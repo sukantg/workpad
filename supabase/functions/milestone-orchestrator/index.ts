@@ -33,11 +33,13 @@ interface PaymentRequirement {
   accepts: Array<{
     scheme: string;
     network: string;
-    maxAmountRequired: number;
+    maxAmountRequired: string; // Must be string for x402 library
     asset: string;
     payTo: string;
     resource: string;
     maxTimeoutSeconds: number;
+    description: string; // Required by x402 library
+    mimeType: string; // Required by x402 library
   }>;
 }
 
@@ -149,11 +151,13 @@ function return402Response(amountRequired: number, resourceId: string): Response
       {
         scheme: "exact",
         network: "solana-devnet",
-        maxAmountRequired: amountRequired,
+        maxAmountRequired: amountRequired.toString(), // Convert to string as required by x402
         asset: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         payTo: ESCROW_WALLET,
         resource: resourceId,
         maxTimeoutSeconds: 300,
+        description: `Payment required to release milestone funds for resource ${resourceId}`, // Required by x402
+        mimeType: "application/json", // Required by x402
       },
     ],
   };
